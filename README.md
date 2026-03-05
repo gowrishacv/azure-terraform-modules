@@ -41,6 +41,7 @@ Our module ecosystem is designed to be highly composable. Use one, or use them a
 | 💾 **[Storage Account](./modules/storage-account/)** | Data | Encryption at rest, network rules, aggressive lifecycle policies |
 | ⚙️ **[Virtual Machine](./modules/virtual-machine/)** | Compute | Linux/Windows support, Azure Monitor Agent extensions |
 | 🚀 **[App Service](./modules/app-service/)** | Web Apps | Managed Identity, VNet integration out-of-the-box |
+| 🤖 **[Azure OpenAI](./modules/openai/)** | AI/ML | Deep Entra ID RBAC, Private Endpoints, Multiple Deployments |
 | 📦 **[Container Registry](./modules/acr/)** | Artifacts | Premium SKU features, private endpoints, geo-replication |
 | 🚢 **[AKS Cluster](./modules/aks-cluster/)** | Kubernetes | Entra ID RBAC, Azure CNI networking, automated node pools |
 | 📊 **[Log Analytics](./modules/log-analytics/)** | Monitoring | Centralized retention, capacity planning |
