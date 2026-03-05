@@ -1,0 +1,28 @@
+[0m[1mvar.environment[0m
+  Environment name (dev, staging, prod)
+
+  [1mEnter a value:[0m [0m
+[0m[1mvar.project[0m
+  Project, workload, or application name
+
+  [1mEnter a value:[0m [0m
+
+[0m[1m[31mPlanning failed.[0m[1m Terraform encountered an error while generating this plan.[0m
+
+[0m[31m╷[0m[0m
+[31m│[0m [0m[1m[31mError: [0m[0m[1mInvalid provider configuration[0m
+[31m│[0m [0m
+[31m│[0m [0m[0mProvider "registry.terraform.io/hashicorp/azurerm" requires explicit
+[31m│[0m [0mconfiguration. Add a provider block to the root module and configure the
+[31m│[0m [0mprovider's required arguments as described in the provider documentation.
+[31m│[0m [0m
+[31m╵[0m[0m
+[31m╷[0m[0m
+[31m│[0m [0m[1m[31mError: [0m[0m[1mMissing required argument[0m
+[31m│[0m [0m
+[31m│[0m [0m[0m  with provider["registry.terraform.io/hashicorp/azurerm"],
+[31m│[0m [0m  on <empty> line 0:
+[31m│[0m [0m  (source code not available)
+[31m│[0m [0m
+[31m│[0m [0mThe argument "features" is required, but no definition was found.
+[31m╵[0m[0m
