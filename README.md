@@ -1,104 +1,131 @@
-# Azure Terraform Modules
+<div align="center">
+  <img src="https://raw.githubusercontent.com/hashicorp/terraform-website/master/public/img/logo-text.svg" width="300" alt="Terraform Logo"/>
+  <br/>
+  <h1>☁️ Azure Enterprise Terraform Modules</h1>
+  <p><b>Production-grade, highly secure, and reusable Terraform modules for Azure infrastructure.</b></p>
+  
+  [![Terraform Version](https://img.shields.io/badge/Terraform-%3E%3D%201.5.0-623CE4?logo=terraform)](https://www.terraform.io/)
+  [![AzureRM Provider](https://img.shields.io/badge/AzureRM-%3E%3D%203.75.0-0089D6?logo=microsoft-azure)](https://registry.terraform.io/providers/hashicorp/azurerm/latest)
+  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+  [![Testing: Terratest](https://img.shields.io/badge/Testing-Terratest-00ADD8?logo=go)](https://terratest.gruntwork.io/)
+</div>
 
-Production-grade, reusable Terraform modules for Azure infrastructure. Built for enterprise environments with consistent tagging, naming conventions, and security defaults.
+<br/>
 
-## Architecture
+Welcome to the **Azure Enterprise Terraform Modules** repository! 👋
 
-```
-├── modules/
-│   ├── resource-group/       # Resource Group with enforced tagging
-│   ├── vnet/                 # Virtual Network with subnets and service endpoints
-│   ├── nsg/                  # Network Security Groups with rule management
-│   ├── key-vault/            # Key Vault with access policies and private endpoint
-│   ├── storage-account/      # Storage Account with security hardening
-│   ├── app-service/          # App Service with managed identity and VNet integration
-│   └── aks-cluster/          # AKS with node pools, RBAC, and network policy
-├── examples/
-│   ├── complete/             # Full deployment using all modules
-│   └── minimal/              # Minimal example with core modules only
-├── environments/
-│   ├── dev/
-│   ├── staging/
-│   └── prod/
-└── .github/workflows/        # CI/CD for Terraform plan and apply
-```
+If you are looking for battle-tested infrastructure-as-code snippets that are ready to be deployed into strict corporate environments, you're in the right place. We built these modules to stop reinventing the wheel every time we need a new Virtual Machine, Kubernetes Cluster, or Key Vault.
 
-## Design Principles
+## ✨ Why use these modules?
 
-- **Tagging enforcement**: Every resource inherits a base tag set (environment, owner, cost center, managed-by)
-- **Secure defaults**: Public access disabled, HTTPS enforced, TLS 1.2 minimum where applicable
-- **Least privilege**: Managed identities preferred over service principals
-- **Remote state**: Azure Storage backend with state locking via blob lease
-- **No hardcoded values**: Everything parameterized through variables
+We've baked in enterprise best practices so you don't have to:
 
-## Prerequisites
+- 🏷️ **Tagging Enforcement:** Every resource strictly adheres to a standard tagging inheritance model (environment, owner, cost center).
+- 🔒 **Secure by Default:** Public network access is disabled by default, HTTPS is enforced, and TLS 1.2+ is the minimum standard.
+- 🔑 **Least Privilege Identity:** We strongly prefer System-Assigned Managed Identities over messy Service Principals.
+- 🧪 **Automated Validation:** Every single module is covered by [Terratest](https://terratest.gruntwork.io/) to guarantee that deployments actually work before they hit production.
+- 📦 **100% Parameterized:** Absolutely zero hardcoded values.
 
-- Terraform >= 1.5.0
-- AzureRM Provider >= 3.75.0
-- Azure CLI authenticated (`az login`)
-- Storage Account for remote state (see [backend setup](#backend-setup))
+---
 
-## Quick Start
+## 🏗️ Architecture & Available Modules
 
-```bash
-# Clone the repo
-git clone https://github.com/gowrishacv/azure-terraform-modules.git
-cd azure-terraform-modules/examples/minimal
+Our module ecosystem is designed to be highly composable. Use one, or use them all!
 
-# Initialize with remote backend
-terraform init
+| Module | Purpose | Key Enterprise Features |
+|--------|---------|-------------------------|
+| 🧊 **[Resource Group](./modules/resource-group/)** | Foundation | Tag inheritance, strict naming conventions, management locks |
+| 🌐 **[Virtual Network](./modules/vnet/)** | Networking | Granular subnetting, service endpoints, DNS delegation |
+| 🛡️ **[Network Security Group](./modules/nsg/)** | Firewall | Centralized rule priority management, flow logs |
+| 🔐 **[Key Vault](./modules/key-vault/)** | Secrets | Azure RBAC integration, soft delete, purge protection |
+| 💾 **[Storage Account](./modules/storage-account/)** | Data | Encryption at rest, network rules, aggressive lifecycle policies |
+| ⚙️ **[Virtual Machine](./modules/virtual-machine/)** | Compute | Linux/Windows support, Azure Monitor Agent extensions |
+| 🚀 **[App Service](./modules/app-service/)** | Web Apps | Managed Identity, VNet integration out-of-the-box |
+| 📦 **[Container Registry](./modules/acr/)** | Artifacts | Premium SKU features, private endpoints, geo-replication |
+| 🚢 **[AKS Cluster](./modules/aks-cluster/)** | Kubernetes | Entra ID RBAC, Azure CNI networking, automated node pools |
+| 📊 **[Log Analytics](./modules/log-analytics/)** | Monitoring | Centralized retention, capacity planning |
+| 🗄️ **[SQL Server](./modules/sql-server/)** | Database | Entra ID-only auth, vulnerability assessments, firewall rules |
 
-# Review the plan
-terraform plan -var-file="terraform.tfvars"
+---
 
-# Apply
-terraform apply -var-file="terraform.tfvars"
-```
+## 🚀 Quick Start Guide
 
-## Backend Setup
+### 1. Prerequisites
 
-Create a Storage Account for Terraform state before using these modules:
+Before you begin, ensure you have the following installed:
+
+- **Terraform** >= `1.5.0`
+- **Go** >= `1.21` (Only strictly required if running tests)
+- Authenticated via Azure CLI (`az login`)
+
+### 2. Set Up Your Remote State
+
+First, you'll want to initialize a storage account to keep your `.tfstate` files safe and shared with your team:
 
 ```bash
 az group create --name rg-terraform-state --location germanywestcentral
+
 az storage account create \
   --name sttfstategowrisha \
   --resource-group rg-terraform-state \
   --sku Standard_LRS \
   --encryption-services blob
+
 az storage container create \
   --name tfstate \
   --account-name sttfstategowrisha
 ```
 
-## Module Reference
+### 3. Deploy an Example
 
-| Module | Description | Key Features |
-|--------|-------------|--------------|
-| [resource-group](./modules/resource-group/) | Resource Group with enforced tagging | Tag inheritance, naming convention |
-| [vnet](./modules/vnet/) | Virtual Network with subnets | Service endpoints, delegation, DNS |
-| [nsg](./modules/nsg/) | Network Security Groups | Rule priority management, flow logs |
-| [key-vault](./modules/key-vault/) | Key Vault | RBAC, soft delete, purge protection |
-| [storage-account](./modules/storage-account/) | Storage Account | Encryption, network rules, lifecycle |
-| [app-service](./modules/app-service/) | App Service (Linux) | Managed identity, VNet integration |
-| [aks-cluster](./modules/aks-cluster/) | Azure Kubernetes Service | RBAC, CNI networking, node pools |
-
-## Environments
-
-Each environment folder contains its own `terraform.tfvars` and backend config. This keeps state files isolated per environment.
+We provide ready-to-use examples for every module. Let's deploy the minimum foundational setup:
 
 ```bash
-cd environments/dev
-terraform init -backend-config="backend.tfvars"
+# 1. Clone the repository
+git clone https://github.com/gowrishacv/azure-terraform-modules.git
+cd azure-terraform-modules/examples/minimal
+
+# 2. Initialize Terraform (downloads providers)
+terraform init
+
+# 3. See what will be created
 terraform plan -var-file="terraform.tfvars"
+
+# 4. Deploy it to Azure!
+terraform apply -var-file="terraform.tfvars"
 ```
 
-## Contributing
+---
 
-1. Create a feature branch (`git checkout -b feature/add-redis-module`)
-2. Commit changes with meaningful messages
-3. Open a Pull Request with description of what changed and why
+## 🧪 Running Automated Tests
 
-## License
+Because infrastructure is code, we treat it like code. Every module has a companion Go test file using the **Terratest** framework.
 
-MIT
+When you run these tests, they will literally spin up the infrastructure in Azure, verify it matches our assertions, and immediately destroy it. Clean and painless!
+
+To run a test (e.g., for the Key Vault module):
+
+```bash
+cd modules/key-vault/tests
+
+# Install dependencies
+go mod tidy
+
+# Run the test (times out after 60 mins due to Azure provisioning times)
+go test -v -timeout 60m
+```
+
+---
+
+## 🤝 Contributing
+
+We love contributions! If you'd like to improve a module or add a new one:
+
+1. Create a feature branch (`git checkout -b feature/amazing-new-module`).
+2. Implement your module and **make sure to write a Terratest for it**.
+3. Commit changes with a descriptive message.
+4. Open a Pull Request!
+
+## 📄 License
+
+This project is licensed under the **MIT License**. See the `LICENSE` file for details.
