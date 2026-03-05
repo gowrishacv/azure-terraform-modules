@@ -3,7 +3,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = ">= 3.75.0"
+      version = "~> 3.75"
     }
   }
 }
@@ -114,10 +114,12 @@ resource "azurerm_monitor_diagnostic_setting" "this" {
   target_resource_id         = azurerm_virtual_network.this.id
   log_analytics_workspace_id = var.log_analytics_workspace_id
 
-  # These block schemas change slightly between AzureRM major versions,
-  # but generically covering ALL metrics/logs is easiest for standard modules
   enabled_log {
     category = "VMProtectionAlerts"
+  }
+
+  enabled_log {
+    category = "AllMetrics"
   }
 
   metric {

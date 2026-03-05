@@ -4,7 +4,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = ">= 3.75.0"
+      version = "~> 3.75"
     }
   }
 
@@ -57,9 +57,9 @@ locals {
 module "rg" {
   source = "../../modules/resource-group"
 
-  name        = "rg-${local.suffix}"
-  location    = var.location
+  project     = var.project
   environment = var.environment
+  location    = var.location
   default_tags = local.default_tags
 }
 
@@ -68,7 +68,8 @@ module "rg" {
 module "vnet" {
   source = "../../modules/vnet"
 
-  name                = "vnet-${local.suffix}"
+  project             = var.project
+  environment         = var.environment
   location            = module.rg.location
   resource_group_name = module.rg.name
   address_space       = ["10.0.0.0/16"]
@@ -101,11 +102,14 @@ module "vnet" {
 module "nsg_aks" {
   source = "../../modules/nsg"
 
-  name                = "nsg-aks-${local.suffix}"
+  project             = var.project
+  environment         = var.environment
   location            = module.rg.location
   resource_group_name = module.rg.name
   subnet_ids          = [module.vnet.subnet_ids["snet-aks"]]
 
+  # Baseline deny rules are enabled by default (add_baseline_deny_rules = true)
+  # Only add explicit allow rules here
   rules = [
     {
       name                       = "allow-https-inbound"
@@ -114,17 +118,8 @@ module "nsg_aks" {
       access                     = "Allow"
       protocol                   = "Tcp"
       destination_port_range     = "443"
-      source_address_prefix      = "Internet"
+      source_address_prefix      = "AzureLoadBalancer"
       destination_address_prefix = "VirtualNetwork"
-    },
-    {
-      name                       = "deny-all-inbound"
-      priority                   = 4096
-      direction                  = "Inbound"
-      access                     = "Deny"
-      protocol                   = "*"
-      source_address_prefix      = "*"
-      destination_address_prefix = "*"
     }
   ]
 
@@ -136,9 +131,10 @@ module "nsg_aks" {
 module "key_vault" {
   source = "../../modules/key-vault"
 
-  name                          = "kv-${local.suffix}"
-  location                      = module.rg.location
-  resource_group_name           = module.rg.name
+  project             = var.project
+  environment         = var.environment
+  location            = module.rg.location
+  resource_group_name = module.rg.name
   enable_rbac_authorization     = true
   public_network_access_enabled = false
 
@@ -156,7 +152,8 @@ module "key_vault" {
 module "storage" {
   source = "../../modules/storage-account"
 
-  name                = "st${var.project}${var.environment}gwc"
+  project             = var.project
+  environment         = var.environment
   location            = module.rg.location
   resource_group_name = module.rg.name
   replication_type    = "ZRS"
@@ -179,10 +176,10 @@ module "storage" {
 module "app_service" {
   source = "../../modules/app-service"
 
-  name                       = "app-api-${local.suffix}"
-  service_plan_name          = "asp-api-${local.suffix}"
-  location                   = module.rg.location
-  resource_group_name        = module.rg.name
+  project             = var.project
+  environment         = var.environment
+  location            = module.rg.location
+  resource_group_name = module.rg.name
   os_type                    = "Linux"
   sku_name                   = "P1v3"
   vnet_integration_subnet_id = module.vnet.subnet_ids["snet-appservice"]
@@ -192,7 +189,7 @@ module "app_service" {
   }
 
   app_settings = {
-    ASPNETCORE_ENVIRONMENT = "Development"
+    ASPNETCORE_ENVIRONMENT = var.environment == "prod" ? "Production" : "Development"
     KeyVaultUri            = module.key_vault.vault_uri
   }
 
@@ -204,11 +201,10 @@ module "app_service" {
 module "aks" {
   source = "../../modules/aks-cluster"
 
-  name                    = "aks-${local.suffix}"
-  location                = module.rg.location
-  resource_group_name     = module.rg.name
-  dns_prefix              = "aks-${var.project}-${var.environment}"
-  private_cluster_enabled = true
+  project             = var.project
+  environment         = var.environment
+  location            = module.rg.location
+  resource_group_name = module.rg.name
   sku_tier                = "Standard"
 
   default_node_pool = {
@@ -244,7 +240,7 @@ output "resource_group_name" {
 }
 
 output "aks_cluster_name" {
-  value = module.aks.name
+  value = module.aks.aks_name
 }
 
 output "key_vault_uri" {
@@ -252,5 +248,5 @@ output "key_vault_uri" {
 }
 
 output "app_service_hostname" {
-  value = module.app_service.default_hostname
+  value = module.app_service.app_service_default_site_hostname
 }

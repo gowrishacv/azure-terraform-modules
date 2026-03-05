@@ -3,7 +3,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = ">= 3.75.0"
+      version = "~> 3.75"
     }
     azuread = {
       source  = "hashicorp/azuread"
@@ -37,6 +37,10 @@ resource "azurerm_mssql_server" "this" {
 
   minimum_tls_version           = "1.2"
   public_network_access_enabled = var.public_network_access_enabled
+
+  identity {
+    type = "SystemAssigned"
+  }
 
   # Required Entra ID (Azure AD) Admin Block
   dynamic "azuread_administrator" {

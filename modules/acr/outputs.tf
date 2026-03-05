@@ -14,13 +14,13 @@ output "acr_login_server" {
 }
 
 output "acr_admin_username" {
-  description = "The Username associated with the Container Registry Admin account"
-  value       = azurerm_container_registry.this.admin_username
+  description = "The Username associated with the Container Registry Admin account (only populated when admin_enabled = true)"
+  value       = var.admin_enabled ? azurerm_container_registry.this.admin_username : null
   sensitive   = true
 }
 
 output "acr_admin_password" {
-  description = "The Password associated with the Container Registry Admin account"
-  value       = azurerm_container_registry.this.admin_password
+  description = "The Password associated with the Container Registry Admin account (only populated when admin_enabled = true)"
+  value       = var.admin_enabled ? azurerm_container_registry.this.admin_password : null
   sensitive   = true
 }

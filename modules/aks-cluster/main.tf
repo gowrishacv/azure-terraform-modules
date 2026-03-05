@@ -3,7 +3,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = ">= 3.75.0"
+      version = "~> 3.75"
     }
   }
 }
@@ -31,6 +31,8 @@ resource "azurerm_kubernetes_cluster" "this" {
   node_os_upgrade_channel   = var.node_os_upgrade_channel
   oidc_issuer_enabled       = true
   workload_identity_enabled = true
+  local_account_disabled    = var.local_account_disabled
+  azure_policy_enabled      = var.azure_policy_enabled
 
   default_node_pool {
     name                 = var.default_node_pool.name
@@ -90,6 +92,13 @@ resource "azurerm_kubernetes_cluster" "this" {
     }
   }
 
+  dynamic "microsoft_defender" {
+    for_each = var.log_analytics_workspace_id != "" ? [1] : []
+    content {
+      log_analytics_workspace_id = var.log_analytics_workspace_id
+    }
+  }
+
   tags = var.tags
 
   lifecycle {
@@ -97,6 +106,42 @@ resource "azurerm_kubernetes_cluster" "this" {
       default_node_pool[0].node_count,
       kubernetes_version
     ]
+  }
+}
+
+# -------------------------------------------------------------
+# AKS Diagnostic Settings (Control Plane Logs)
+# -------------------------------------------------------------
+resource "azurerm_monitor_diagnostic_setting" "aks" {
+  count = var.log_analytics_workspace_id != "" ? 1 : 0
+
+  name                       = "${local.aks_name}-diag"
+  target_resource_id         = azurerm_kubernetes_cluster.this.id
+  log_analytics_workspace_id = var.log_analytics_workspace_id
+
+  enabled_log {
+    category = "kube-apiserver"
+  }
+
+  enabled_log {
+    category = "kube-audit"
+  }
+
+  enabled_log {
+    category = "kube-controller-manager"
+  }
+
+  enabled_log {
+    category = "kube-scheduler"
+  }
+
+  enabled_log {
+    category = "cluster-autoscaler"
+  }
+
+  metric {
+    category = "AllMetrics"
+    enabled  = true
   }
 }
 

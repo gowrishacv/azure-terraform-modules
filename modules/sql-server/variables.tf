@@ -90,6 +90,14 @@ variable "firewall_rules" {
     end_ip_address   = string
   }))
   default = {}
+
+  validation {
+    condition = alltrue([
+      for name, rule in var.firewall_rules :
+      !(rule.start_ip_address == "0.0.0.0" && rule.end_ip_address == "255.255.255.255")
+    ])
+    error_message = "Firewall rules must not allow the entire internet (0.0.0.0 - 255.255.255.255). Use specific IP ranges."
+  }
 }
 
 variable "log_analytics_workspace_id" {
@@ -111,9 +119,14 @@ variable "security_alert_emails" {
 }
 
 variable "alert_retention_days" {
-  description = "How many days to keep security alerts"
+  description = "How many days to keep security alerts. CIS recommends >= 90 days."
   type        = number
-  default     = 30
+  default     = 90
+
+  validation {
+    condition     = var.alert_retention_days >= 90
+    error_message = "Alert retention must be at least 90 days for compliance (CIS Azure Benchmark)."
+  }
 }
 
 variable "vulnerability_assessment_storage_container_path" {

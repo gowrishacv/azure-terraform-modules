@@ -84,6 +84,23 @@ variable "rules" {
     ])
     error_message = "Custom rule priority must be between 100 and 4095. Priority 4096 is reserved for Enterprise Baseline Deny Rules."
   }
+
+  validation {
+    condition = alltrue([
+      for rule in var.rules :
+      !(rule.direction == "Inbound" && rule.access == "Allow" &&
+        contains(["*", "Internet", "0.0.0.0/0"], coalesce(rule.source_address_prefix, "")) &&
+        contains(["22", "3389", "3306", "1433", "5432", "*"], coalesce(rule.destination_port_range, "")))
+    ])
+    error_message = "Inbound Allow rules from the internet to high-risk ports (22, 3389, 3306, 1433, 5432, *) are prohibited. Use specific source IPs or a bastion host."
+  }
+
+  validation {
+    condition = alltrue([
+      for rule in var.rules : !startswith(rule.name, "Enterprise-")
+    ])
+    error_message = "Rule names starting with 'Enterprise-' are reserved for baseline rules."
+  }
 }
 
 variable "subnet_ids" {

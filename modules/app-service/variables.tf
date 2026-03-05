@@ -82,9 +82,10 @@ variable "application_stack" {
 }
 
 variable "app_settings" {
-  description = "Application settings (environment variables)"
+  description = "Application settings (environment variables). Values may contain secrets and will be marked sensitive."
   type        = map(string)
   default     = {}
+  sensitive   = true
 }
 
 variable "log_analytics_workspace_id" {

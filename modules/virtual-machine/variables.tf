@@ -81,16 +81,27 @@ variable "admin_username" {
 }
 
 variable "admin_password" {
-  description = "The admin password for Windows VMs or password-enabled Linux VMs"
+  description = "The admin password for Windows VMs. Must be 12-123 characters with uppercase, lowercase, number and special character."
   type        = string
   default     = ""
   sensitive   = true
+
+  validation {
+    condition     = var.admin_password == "" || (length(var.admin_password) >= 12 && length(var.admin_password) <= 123)
+    error_message = "Admin password must be between 12 and 123 characters long."
+  }
 }
 
 variable "ssh_public_key" {
-  description = "SSH Public Key for Linux VMs"
+  description = "SSH Public Key for Linux VMs. Required when os_type is Linux."
   type        = string
   default     = ""
+}
+
+variable "encryption_at_host_enabled" {
+  description = "Enable encryption at host for OS and temp disks (CIS 7.2). Requires Microsoft.Compute/EncryptionAtHost feature registered on the subscription."
+  type        = bool
+  default     = false
 }
 
 variable "source_image_reference" {

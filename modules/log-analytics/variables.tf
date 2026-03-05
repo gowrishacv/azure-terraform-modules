@@ -53,9 +53,9 @@ variable "sku" {
 }
 
 variable "retention_in_days" {
-  description = "The workspace data retention in days. Range between 30 and 730."
+  description = "The workspace data retention in days. Range between 30 and 730. CIS recommends >= 90 days."
   type        = number
-  default     = 30
+  default     = 90
 
   validation {
     condition     = var.retention_in_days >= 30 && var.retention_in_days <= 730
@@ -70,15 +70,15 @@ variable "daily_quota_gb" {
 }
 
 variable "internet_ingestion_enabled" {
-  description = "Should the Log Analytics Workspace support ingestion over the Public Internet?"
+  description = "Should the Log Analytics Workspace support ingestion over the Public Internet? Set to false for private-only ingestion."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "internet_query_enabled" {
-  description = "Should the Log Analytics Workspace support querying over the Public Internet?"
+  description = "Should the Log Analytics Workspace support querying over the Public Internet? Set to false for private-only access."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "tags" {

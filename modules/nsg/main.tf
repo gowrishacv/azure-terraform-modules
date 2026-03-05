@@ -3,7 +3,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = ">= 3.75.0"
+      version = "~> 3.75"
     }
   }
 }
@@ -93,7 +93,9 @@ resource "azurerm_subnet_network_security_group_association" "this" {
 }
 
 # -------------------------------------------------------------
-# NSG Flow Logs / Diagnostic Settings
+# NSG Diagnostic Settings
+# Note: For actual NSG Flow Logs (azurerm_network_watcher_flow_log),
+# configure separately via Network Watcher with a storage account.
 # -------------------------------------------------------------
 resource "azurerm_monitor_diagnostic_setting" "this" {
   count = var.log_analytics_workspace_id != "" ? 1 : 0

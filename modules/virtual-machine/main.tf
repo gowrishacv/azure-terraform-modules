@@ -3,7 +3,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = ">= 3.75.0"
+      version = "~> 3.75"
     }
   }
 }
@@ -54,10 +54,15 @@ resource "azurerm_linux_virtual_machine" "linux" {
     azurerm_network_interface.this[count.index].id
   ]
 
-  admin_ssh_key {
-    username   = var.admin_username
-    public_key = var.ssh_public_key != "" ? var.ssh_public_key : file("~/.ssh/id_rsa.pub") # Fallback to local key if bad input
+  dynamic "admin_ssh_key" {
+    for_each = var.ssh_public_key != "" ? [1] : []
+    content {
+      username   = var.admin_username
+      public_key = var.ssh_public_key
+    }
   }
+
+  encryption_at_host_enabled = var.encryption_at_host_enabled
 
   os_disk {
     caching              = "ReadWrite"
@@ -70,6 +75,8 @@ resource "azurerm_linux_virtual_machine" "linux" {
     sku       = var.source_image_reference["sku"]
     version   = var.source_image_reference["version"]
   }
+
+  boot_diagnostics {}
 
   # Essential for modern enterprise workloads
   identity {
@@ -92,6 +99,8 @@ resource "azurerm_windows_virtual_machine" "windows" {
   admin_username      = var.admin_username
   admin_password      = var.admin_password
 
+  encryption_at_host_enabled = var.encryption_at_host_enabled
+
   network_interface_ids = [
     azurerm_network_interface.this[count.index].id
   ]
@@ -107,6 +116,8 @@ resource "azurerm_windows_virtual_machine" "windows" {
     sku       = var.source_image_reference["sku"]
     version   = var.source_image_reference["version"]
   }
+
+  boot_diagnostics {}
 
   identity {
     type = "SystemAssigned"

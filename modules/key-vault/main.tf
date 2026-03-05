@@ -3,7 +3,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = ">= 3.75.0"
+      version = "~> 3.75"
     }
   }
 }
@@ -18,7 +18,8 @@ locals {
   raw_name = lower("kv-${var.company_prefix}-${var.project}-${var.environment}-${local.location_abbr}-${var.instance}")
 
   # Key Vault names can have hyphens, but we must still enforce the 24 char limit
-  kv_name = substr(local.raw_name, 0, 24)
+  # trimsuffix prevents names ending with '-' which Azure rejects
+  kv_name = trimsuffix(substr(local.raw_name, 0, 24), "-")
 }
 
 resource "azurerm_key_vault" "this" {

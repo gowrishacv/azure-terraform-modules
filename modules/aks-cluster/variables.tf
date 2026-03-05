@@ -155,6 +155,18 @@ variable "enable_secret_store_csi" {
   default     = true
 }
 
+variable "local_account_disabled" {
+  description = "Disable local admin account (az aks get-credentials --admin). When true, only Entra ID authentication is allowed."
+  type        = bool
+  default     = true
+}
+
+variable "azure_policy_enabled" {
+  description = "Enable Azure Policy add-on for AKS (CIS AKS 5.2.x)"
+  type        = bool
+  default     = true
+}
+
 variable "tags" {
   description = "Tags to apply"
   type        = map(string)

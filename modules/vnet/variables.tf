@@ -54,6 +54,11 @@ variable "address_space" {
     condition     = length(var.address_space) > 0
     error_message = "At least one address space must be provided."
   }
+
+  validation {
+    condition     = alltrue([for cidr in var.address_space : can(cidrhost(cidr, 0))])
+    error_message = "All address_space entries must be valid CIDR notation (e.g., 10.0.0.0/16)."
+  }
 }
 
 variable "dns_servers" {

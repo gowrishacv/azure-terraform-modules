@@ -58,9 +58,14 @@ variable "sku_name" {
 }
 
 variable "soft_delete_retention_days" {
-  description = "Number of days to retain soft-deleted vaults"
+  description = "Number of days to retain soft-deleted vaults (must be 7-90)"
   type        = number
   default     = 90
+
+  validation {
+    condition     = var.soft_delete_retention_days >= 7 && var.soft_delete_retention_days <= 90
+    error_message = "Soft delete retention must be between 7 and 90 days."
+  }
 }
 
 variable "purge_protection_enabled" {
