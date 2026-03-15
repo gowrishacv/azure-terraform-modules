@@ -12,7 +12,7 @@
 
 <br/>
 
-A library of **12 composable Terraform modules** for Azure, designed for enterprise environments with strict security, compliance, and operational requirements.
+A library of **13 composable Terraform modules** for Azure, designed for enterprise environments with strict security, compliance, and operational requirements.
 
 ## Security Posture
 
@@ -38,6 +38,7 @@ These modules are aligned with the **CIS Azure Foundations Benchmark** and the *
 | [Resource Group](./modules/resource-group/) | Foundation | Tag inheritance, management locks, RBAC role assignments |
 | [Virtual Network](./modules/vnet/) | Networking | CIDR validation, DDoS protection, subnet delegation, peering |
 | [Network Security Group](./modules/nsg/) | Firewall | Baseline deny-all rules, high-risk port blocking validation, diagnostic logging |
+| [Private Endpoint](./modules/private-endpoint/) | Connectivity | Private Link integration, automatic DNS registration, cross-service support |
 | [Key Vault](./modules/key-vault/) | Secrets | RBAC authorization, purge protection, network ACLs, audit diagnostics |
 | [Storage Account](./modules/storage-account/) | Data | Shared key disabled, network deny rules, Defender for Storage, blob diagnostics |
 | [Virtual Machine](./modules/virtual-machine/) | Compute | Encryption at host, boot diagnostics, SSH key auth, Azure Monitor Agent |
@@ -133,6 +134,7 @@ All resources follow the pattern: `{type}-{company}-{project}-{env}-{region}-{in
 │   ├── resource-group/      # Foundation: RG + locks + RBAC
 │   ├── vnet/                 # Networking: VNet + subnets + peering
 │   ├── nsg/                  # Security: NSG + rules + diagnostics
+│   ├── private-endpoint/     # Connectivity: Private Link + DNS
 │   ├── key-vault/            # Secrets: KV + RBAC + audit logs
 │   ├── storage-account/      # Storage: Blob + Defender + diagnostics
 │   ├── virtual-machine/      # Compute: Linux/Windows VMs + AMA
@@ -144,7 +146,8 @@ All resources follow the pattern: `{type}-{company}-{project}-{env}-{region}-{in
 │   └── sql-server/           # Database: SQL + Defender + auditing
 ├── examples/
 │   ├── minimal/              # RG + VNet only
-│   └── complete/             # Full-stack deployment
+│   ├── complete/             # Full-stack deployment
+│   └── private-endpoint-with-dns/  # Private endpoints + DNS zones
 ├── environments/
 │   ├── dev/                  # Dev backend + variables
 │   └── prod/                 # Prod backend + variables
