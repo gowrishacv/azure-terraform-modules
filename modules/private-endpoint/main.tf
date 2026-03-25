@@ -54,7 +54,7 @@ resource "azurerm_private_endpoint" "this" {
   }
 
   tags = merge(var.tags, {
-    resource-type = "private-endpoint"
+    resource-type   = "private-endpoint"
     target-resource = var.private_connection_resource_id
   })
 
